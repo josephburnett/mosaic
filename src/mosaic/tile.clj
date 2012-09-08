@@ -2,6 +2,13 @@
   (import java.io.File)
   (import java.awt.Color)
   (import java.awt.image.BufferedImage)
-  (import javax.imageio.ImageIO))
+  (import java.awt.image.Raster)
+  (import javax.imageio.ImageIO)
+  (import com.mortennobel.imagescaling.ResampleOp))
+
 (defn test-mosaic []
-  (File. "test/resources/image.jpg"))
+  (ImageIO/read
+   (File. "test/resources/image.jpg")))
+
+(defn rescale [x y ^BufferedImage b]
+  (. (ResampleOp. x y) (filter b nil)))
