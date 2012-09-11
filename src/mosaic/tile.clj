@@ -2,7 +2,8 @@
   (import java.io.File)
   (import javax.imageio.ImageIO)
   (import java.awt.image.BufferedImage)
-  (import com.mortennobel.imagescaling.ResampleOp))
+  (import com.mortennobel.imagescaling.ResampleOp)
+  (import java.lang.Math))
 
 (defn test-image []
   (ImageIO/read
@@ -39,4 +40,22 @@
 (defn save-tiles [tiles ^String d]
   "Save tiles (list of BufferedImages) to directory d."
   (map #(save-image %1 %2) tiles (tile-names d)))
+
+(defn get-samples [^BufferedImage b]
+  "Get a flat list of all samples in an image."
+  (let [d (.getData b)]
+    (for [x (range (.getWidth d))
+	  y (range (.getHeight d))
+	  z (range (.getNumBands d))]
+      (.getSample d x y z))))
+
+(defn delta [^BufferedImage a ^BufferedImage b]
+  "Calculates the difference between images a and b."
+  (reduce + (map #(Math/abs %)
+		 (map - (get-samples a) (get-samples b)))))
+
+(defn sample-tiles [n tiles]
+  "Resample tiles to size n by n.
+   Output format: {:tile :sample}"
+  (for [t tiles] {:tile t :sample (rescale n n t)}))
 
