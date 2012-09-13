@@ -68,3 +68,12 @@
 	    (first samples)
 	    (rest samples))))
 
+(defn assemble [tx ty n ^BufferedImage b]
+  (let [x (* tx n)
+	y (* ty n)
+	s (rescale x y b)
+	o (BufferedImage. x y BufferedImage.TYPE_INT_BGR)]
+    ))
+
+(defn match-tiles [coll tx ty n ^BufferedImage b]
+  )
