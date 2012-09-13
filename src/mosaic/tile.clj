@@ -59,3 +59,12 @@
    Output format: {:tile :sample}"
   (for [t tiles] {:tile t :sample (rescale n n t)}))
 
+(defn best-match [n samples ^BufferedImage b]
+  "Find the best matching tile to image b."
+  (let [s (rescale n n b)]
+    (reduce #(if (< (delta s (:sample %1))
+		    (delta s (:sample %2)))
+	       %1 %2)
+	    (first samples)
+	    (rest samples))))
+
