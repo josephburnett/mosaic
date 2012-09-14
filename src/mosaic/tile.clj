@@ -68,12 +68,33 @@
 	    (first samples)
 	    (rest samples))))
 
-(defn assemble [tx ty n ^BufferedImage b]
-  (let [x (* tx n)
-	y (* ty n)
-	s (rescale x y b)
-	o (BufferedImage. x y BufferedImage.TYPE_INT_BGR)]
-    ))
 
 (defn match-tiles [coll tx ty n ^BufferedImage b]
   )
+
+
+(defn floor [n x]
+  "Round x down to the nearest multiple of n."
+  (int (* n (Math/floor (/ x n)))))
+  
+(defn image-floor [n ^BufferedImage b]
+  "Crop image b down the a width and height which
+   is a multiple of n."
+  (let [x (.getWidth b)
+	y (.getHeight b)]
+    (.getSubimage b 0 0 (floor n x) (floor n y))))
+    
+
+
+(defn mosaic [^BufferedImage source
+	      ^BufferedImage target
+	      tile-size tiles-wide]
+  (let []))
+
+
+; input: <tile_source> <target> <tile_size> <tile_width>
+; 1. resize the source image to tile_size * tile_width
+; 2. grid out the new source image
+; 3. replace the image with a sub image, cropped to height
+; 4. for each grid square replace it with the best matching tile
+
