@@ -68,11 +68,6 @@
 	    (first samples)
 	    (rest samples))))
 
-
-(defn match-tiles [coll tx ty n ^BufferedImage b]
-  )
-
-
 (defn floor [n x]
   "Round x down to the nearest multiple of n."
   (int (* n (Math/floor (/ x n)))))
@@ -84,12 +79,44 @@
 	y (.getHeight b)]
     (.getSubimage b 0 0 (floor n x) (floor n y))))
     
+(defn rescale-fixed-ratio [x ^BufferedImage b]
+  "Resize an image to width x, keeping the aspect ratio."
+  (let [h (.getHeight b)
+	r (/ x (.getWidth b))
+	y (int (* h r))]
+    (rescale x y b)))
 
+(defn gen-canvas [n w ^BufferedImage b]
+  "Rescale and crop image b to evenly fit tiles of
+   size n, with w tiles across."
+  (let [x (* n w)]
+    (image-floor n (rescale-fixed-ratio x b))))
+
+(defn insert! [^BufferedImage a
+	       ^BufferedImage b
+	       dx dy]
+  "Insert image a into image b at coordinates dx,dy."
+  (let [da (.getRaster a)
+	db (.getRaster b)]
+    (reduce = nil
+	    (for [x (range 0 (.getWidth da))
+		  y (range 0 (.getHeight da))
+		  z (range 0 (.getNumBands da))]
+	      (.setSample db (+ dx x) (+ dy y) z
+			  (.getSample da x y z))))))
+    
 
 (defn mosaic [^BufferedImage source
 	      ^BufferedImage target
-	      tile-size tiles-wide]
-  (let []))
+	      n  ; tile size
+	      w  ; width in tiles
+	      s] ; sample size
+  (let [canvas (gen-canvas s w target)
+	tiles (sample-tiles s (gen-tiles n source))]
+    ))
+		    
+	
+
 
 
 ; input: <tile_source> <target> <tile_size> <tile_width>
