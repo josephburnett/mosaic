@@ -21,13 +21,15 @@
      (for
 	 [a (range 0 (- x n -1) s)
 	  b (range 0 (- y n -1) s)]
-       [a,b,(+ a n),(+ b n)])))
+       [a,b,n,n])))
+
+(defn tile [[x y dx dy] ^BufferedImage b]
+  (.getSubimage b x y dx dy))
 
 (defn gen-tiles [n ^BufferedImage b]
   "Generate tiles of size n from image b.
    Returns a list of BufferedImages."
-  (map #(.getSubimage b (first %) (second %) n n)
-       (grid 100 (.getWidth b) (.getHeight b))))
+  (map tile (grid 100 (.getWidth b) (.getHeight b)) (repeat b)))
 
 (defn save-image [^BufferedImage b ^String f]
   "Save a BufferedImage to filename f."
@@ -98,24 +100,26 @@
   "Insert image a into image b at coordinates dx,dy."
   (let [da (.getRaster a)
 	db (.getRaster b)]
-    (reduce = nil
-	    (for [x (range 0 (.getWidth da))
-		  y (range 0 (.getHeight da))
-		  z (range 0 (.getNumBands da))]
-	      (.setSample db (+ dx x) (+ dy y) z
-			  (.getSample da x y z))))))
-    
+    (for [x (range 0 (.getWidth da))
+	  y (range 0 (.getHeight da))
+	  z (range 0 (.getNumBands da))]
+      (.setSample db (+ dx x) (+ dy y) z
+		  (.getSample da x y z))))
+  nil)
 
 (defn mosaic [^BufferedImage source
 	      ^BufferedImage target
 	      n  ; tile size
 	      w  ; width in tiles
 	      s] ; sample size
-  (let [canvas (gen-canvas s w target)
+  (let [canvas (gen-canvas n w target)
 	tiles (sample-tiles s (gen-tiles n source))]
-    ))
-		    
-	
+    (map #(insert!
+	   (:tile (best-match n tiles (tile % canvas)))
+	   canvas (first %) (second %))
+	 (grid n (.getWidth canvas) (.getHeight canvas)))
+    canvas))
+
 
 
 
