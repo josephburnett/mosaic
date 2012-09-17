@@ -31,6 +31,9 @@
    Returns a list of BufferedImages."
   (map tile (grid n (.getWidth b) (.getHeight b)) (repeat b)))
 
+(defn gen-tiles-2 [n coll]
+  (flatten (map gen-tiles (repeat n) coll)))
+
 (defn save-image [^BufferedImage b ^String f]
   "Save a BufferedImage to filename f."
   (ImageIO/write b "jpg" (File. f)))
