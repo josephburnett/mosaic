@@ -9,6 +9,10 @@
   (ImageIO/read
    (File. "test/resources/image.jpg")))
 
+(defn load-image [^String f]
+  (ImageIO/read
+   (File. f)))
+
 (defn rescale [x y ^BufferedImage b]
   (. (ResampleOp. x y) (filter b nil)))
 
@@ -26,13 +30,19 @@
 (defn tile [[x y dx dy] ^BufferedImage b]
   (.getSubimage b x y dx dy))
 
-(defn gen-tiles [n ^BufferedImage b]
+(defn gen-tiles 
   "Generate tiles of size n from image b.
    Returns a list of BufferedImages."
-  (map tile (grid n (.getWidth b) (.getHeight b)) (repeat b)))
+  ([n ^BufferedImage b] (gen-tiles n b n))
+  ([n ^BufferedImage b s]
+     (map tile
+	  (grid n (.getWidth b) (.getHeight b) s)
+	  (repeat b))))
 
-(defn gen-tiles-2 [n coll]
-  (flatten (map gen-tiles (repeat n) coll)))
+(defn gen-tiles-2
+  ([n coll] (gen-tiles-2 n coll n))
+  ([n coll s]
+     (flatten (map gen-tiles (repeat n) coll))))
 
 (defn save-image [^BufferedImage b ^String f]
   "Save a BufferedImage to filename f."
@@ -110,20 +120,36 @@
 		(.setSample db (+ dx x) (+ dy y) z
 			    (.getSample da x y z))))))
 
-(defn mosaic [^BufferedImage source
+(defn mosaic [source
 	      ^BufferedImage target
 	      n  ; tile size
+	      ns ; tile step
 	      w  ; width in tiles
 	      s] ; sample size
   (let [canvas (gen-canvas n w target)
-	tiles (sample-tiles s (gen-tiles n source))]
+	tiles (sample-tiles s (gen-tiles-2 n source ns))]
     (dorun (map #(insert!
 		  (:tile (best-match n tiles (tile % canvas)))
 		  canvas (first %) (second %))
 		(grid n (.getWidth canvas) (.getHeight canvas))))
     canvas))
 
-
+(defn -main [output-file
+	     tile-size
+	     step-size
+	     width-in-tiles
+	     sample-size
+	     target
+	     & sources]
+  (let [s  (map load-image sources)
+	t  (load-image target)
+	ss (Integer. sample-size)
+	w  (Integer. width-in-tiles)
+	ts (Integer. tile-size)
+	tz (Integer. step-size)]
+    (save-image
+     (mosaic s t ts tz w ss)
+     output-file)))
 
 
 ; input: <tile_source> <target> <tile_size> <tile_width>
