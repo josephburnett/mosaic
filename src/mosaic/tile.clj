@@ -64,21 +64,21 @@
 	  z (range (.getNumBands d))]
       (.getSample d x y z))))
 
-(defn delta [^BufferedImage a ^BufferedImage b]
-  "Calculates the difference between images a and b."
-  (reduce + (map #(Math/abs %)
-		 (map - (get-samples a) (get-samples b)))))
+(defn delta [seq-a seq-b]
+  "Calculates the difference between samples seq-a and seq-b."
+  (reduce + (map #(Math/abs %) (map - seq-a seq-b))))
 
 (defn sample-tiles [n tiles]
   "Resample tiles to size n by n.
    Output format: {:tile :sample}"
-  (for [t tiles] {:tile t :sample (rescale n n t)}))
+  (for [t tiles] {:tile t
+		  :samples (get-samples (rescale n n t))}))
 
 (defn best-match [n samples ^BufferedImage b]
   "Find the best matching tile to image b."
-  (let [s (rescale n n b)]
-    (reduce #(if (< (delta s (:sample %1))
-		    (delta s (:sample %2)))
+  (let [s (get-samples (rescale n n b))]
+    (reduce #(if (< (delta s (:samples %1))
+		    (delta s (:samples %2)))
 	       %1 %2)
 	    (first samples)
 	    (rest samples))))
