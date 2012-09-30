@@ -1,4 +1,5 @@
 (ns mosaic.core
+  (:use [mosaic image tile])
   (:use [clojure.tools.cli :only [cli]])
   (:require [mosaic.tile :as tile])
   (:gen-class))
@@ -26,10 +27,10 @@
     (when (:help options) (help banner))
     (if (< (count files) 2)
       (help banner)
-      (let [target (tile/load-image (first files))
-	    tiles (map tile/load-image (rest files))]
-	(tile/save-image
-	 (tile/mosaic tiles
+      (let [target (load-image (first files))
+	    tiles (map load-image (rest files))]
+	(save-image
+	 (mosaic tiles
 		      target
 		      (:tile-size options)
 		      (:step-size options)
