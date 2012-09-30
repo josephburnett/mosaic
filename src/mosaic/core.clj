@@ -35,7 +35,7 @@
   (reduce + (map #(Math/abs %) (map - seq-a seq-b))))
 
 (defn- sample-tiles [n tiles]
-  "Resample tiles to size n by n.
+  "Get average RGB in regions n-by-n for tiles.
    Output format: {:tile :sample}"
   (for [t tiles] {:tile t
 		  :samples (img/get-samples (img/rescale n n t))}))
