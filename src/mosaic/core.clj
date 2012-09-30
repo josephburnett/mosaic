@@ -3,21 +3,36 @@
   (:require [mosaic.tile :as tile])
   (:gen-class))
 
+(defn help [banner]
+  (println "\nExample: lein run target.jpg tiles/*.jpg\n")
+  (println banner)
+  (System/exit 0))
+
 (defn -main [& args]
-  (let [[params source-files help]
+  (let [[options files banner]
 	(cli args
-	     ["-t" "--target" "Target image" :parse-fn tile/load-image]
-	     ["-i" "--tile-size" "Tile size in pixels" :parse-fn #(Integer. %)]
-	     ["-s" "--step-size" "Step size in pixels" :parse-fn #(Integer. %)]
-	     ["-a" "--samples" "Number of sample regions" :parse-fn #(Integer. %)]
-	     ["-o" "--output" "Filename of output" :default "output.jpg"]
-	     ["-w" "--width" "Output width in tiles" :parse-fn #(Integer. %)])
-	sources (map tile/load-image source-files)]
-    (tile/save-image
-     (tile/mosaic sources
-		  (:target params)
-		  (:tile-size params)
-		  (:step-size params)
-		  (:width params)
-		  (:samples params))
-     (:output params))))
+	     ["-i" "--tile-size" "Tile size in pixels"
+	      :parse-fn #(Integer. %) :default "50"]
+	     ["-s" "--step-size" "Step size in pixels"
+	      :parse-fn #(Integer. %) :default "50"]
+	     ["-a" "--samples" "Number of sample regions (width)"
+	      :parse-fn #(Integer. %) :default "6"] 
+	     ["-o" "--output" "Filename of output"
+	      :default "output.jpg"]
+	     ["-w" "--width" "Output width in tiles"
+	      :parse-fn #(Integer. %) :default "30"]
+	     ["-h" "--help" "Show help"
+	      :default false :flag true])]
+    (when (:help options) (help banner))
+    (if (< (count files) 2)
+      (help banner)
+      (let [target (tile/load-image (first files))
+	    tiles (map tile/load-image (rest files))]
+	(tile/save-image
+	 (tile/mosaic tiles
+		      target
+		      (:tile-size options)
+		      (:step-size options)
+		      (:width options)
+		      (:samples options))
+	 (:output options))))))
