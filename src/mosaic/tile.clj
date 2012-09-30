@@ -134,22 +134,7 @@
 		(grid n (.getWidth canvas) (.getHeight canvas))))
     canvas))
 
-(defn -main [output-file
-	     tile-size
-	     step-size
-	     width-in-tiles
-	     sample-size
-	     target
-	     & sources]
-  (let [s  (map load-image sources)
-	t  (load-image target)
-	ss (Integer. sample-size)
-	w  (Integer. width-in-tiles)
-	ts (Integer. tile-size)
-	tz (Integer. step-size)]
-    (save-image
-     (mosaic s t ts tz w ss)
-     output-file)))
+
 
 
 ; input: <tile_source> <target> <tile_size> <tile_width>
