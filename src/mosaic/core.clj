@@ -1,20 +1,23 @@
 (ns mosaic.core
+  (:use [clojure.tools.cli :only [cli]])
   (:require [mosaic.tile :as tile])
   (:gen-class))
 
-(defn -main [output-file
-	     tile-size
-	     step-size
-	     width-in-tiles
-	     sample-size
-	     target
-	     & sources]
-  (let [s  (map tile/load-image sources)
-	t  (tile/load-image target)
-	ss (Integer. sample-size)
-	w  (Integer. width-in-tiles)
-	ts (Integer. tile-size)
-	tz (Integer. step-size)]
+(defn -main [& args]
+  (let [[params source-files help]
+	(cli args
+	     ["-t" "--target" "Target image" :parse-fn tile/load-image]
+	     ["-i" "--tile-size" "Tile size in pixels" :parse-fn #(Integer. %)]
+	     ["-s" "--step-size" "Step size in pixels" :parse-fn #(Integer. %)]
+	     ["-a" "--samples" "Number of sample regions" :parse-fn #(Integer. %)]
+	     ["-o" "--output" "Filename of output" :default "output.jpg"]
+	     ["-w" "--width" "Output width in tiles" :parse-fn #(Integer. %)])
+	sources (map tile/load-image source-files)]
     (tile/save-image
-     (tile/mosaic s t ts tz w ss)
-     output-file)))
+     (tile/mosaic sources
+		  (:target params)
+		  (:tile-size params)
+		  (:step-size params)
+		  (:width params)
+		  (:samples params))
+     (:output params))))
