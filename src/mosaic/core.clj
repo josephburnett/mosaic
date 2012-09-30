@@ -1,5 +1,5 @@
 (ns mosaic.core
-  (use mosaic.image)
+  (require [mosaic.image :as img])
   (import java.lang.Math)
   (import java.awt.image.BufferedImage))
 
@@ -19,7 +19,7 @@
    Returns a list of BufferedImages."
   ([n ^BufferedImage b] (gen-tiles n b n))
   ([n ^BufferedImage b s]
-     (map sub-image
+     (map img/sub-image
 	  (grid n (.getWidth b) (.getHeight b) s)
 	  (repeat b))))
 
@@ -38,11 +38,11 @@
   "Resample tiles to size n by n.
    Output format: {:tile :sample}"
   (for [t tiles] {:tile t
-		  :samples (get-samples (rescale n n t))}))
+		  :samples (img/get-samples (img/rescale n n t))}))
 
 (defn- best-match [n samples ^BufferedImage b]
   "Find the best matching tile to image b."
-  (let [s (get-samples (rescale n n b))]
+  (let [s (img/get-samples (img/rescale n n b))]
     (reduce #(if (< (delta s (:samples %1))
 		    (delta s (:samples %2)))
 	       %1 %2)
@@ -53,18 +53,19 @@
   "Rescale and crop image b to evenly fit tiles of
    size n, with w tiles across."
   (let [x (* n w)]
-    (image-floor n (rescale-fixed-ratio x b))))
+    (img/image-floor n (img/rescale-fixed-ratio x b))))
 
 (defn mosaic [tiles ; collection of tile sources
-	      ^BufferedImage target
+	      ^BufferedImage target ; image to mosaic
 	      n  ; tile size
-	      ns ; tile step
+	      ns ; tile step size
 	      w  ; width in tiles
-	      s] ; sample size
+	      s] ; sample size (actual sample regions are s^2)
   (let [canvas (gen-canvas n w target)
 	tiles (sample-tiles s (gen-tiles-coll n tiles ns))]
-    (dorun (map #(insert!
-		  (:tile (best-match n tiles (sub-image % canvas)))
+    ; Replace each tile in canvas with the best match from tiles coll.
+    (dorun (map #(img/insert!
+		  (:tile (best-match n tiles (img/sub-image % canvas)))
 		  canvas (first %) (second %))
 		(grid n (.getWidth canvas) (.getHeight canvas))))
     canvas))
