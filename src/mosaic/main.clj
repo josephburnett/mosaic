@@ -1,8 +1,7 @@
 (ns mosaic.main
-  (:use [mosaic core image])
-  (:use [clojure.tools.cli :only [cli]])
-  (:require [mosaic.tile :as tile])
-  (:gen-class))
+  (use [mosaic core image])
+  (use [clojure.tools.cli :only [cli]])
+  (gen-class))
 
 (defn help [banner]
   (println "\nExample: lein run target.jpg tiles/*.jpg\n")
