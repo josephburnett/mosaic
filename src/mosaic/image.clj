@@ -6,20 +6,20 @@
   (import com.mortennobel.imagescaling.ResampleOp))
 
 (defn load-image [^String f]
-  "Load an image f into a BufferedImage"
+  "Load filename f into a BufferedImage"
   (ImageIO/read
    (File. f)))
 
 (defn save-image [^BufferedImage b ^String f]
-  "Save a BufferedImage to filename f."
+  "Save image b to filename f."
   (ImageIO/write b "jpg" (File. f)))
 
 (defn rescale [x y ^BufferedImage b]
-  "Rescale an image b to dimensions x y."
+  "Rescale image b to dimensions x y."
   (. (ResampleOp. x y) (filter b nil)))
 
 (defn rescale-fixed-ratio [x ^BufferedImage b]
-  "Resize an image to width x, keeping the aspect ratio."
+  "Resize image b to width x, keeping the aspect ratio."
   (let [h (.getHeight b)
 	r (/ x (.getWidth b))
 	y (int (* h r))]
@@ -30,7 +30,7 @@
   (.getSubimage b x y dx dy))
 
 (defn get-samples [^BufferedImage b]
-  "Get a flat list of all samples in an image."
+  "Get a flat list of all samples in image b."
   (let [d (.getData b)]
     (for [x (range (.getWidth d))
 	  y (range (.getHeight d))
@@ -42,8 +42,8 @@
   (int (* n (Math/floor (/ x n)))))
   
 (defn image-floor [n ^BufferedImage b]
-  "Crop image b down the a width and height which
-   is a multiple of n."
+  "Crop image b to the largest width and height
+   which are multiples of n."
   (let [x (.getWidth b)
 	y (.getHeight b)]
     (.getSubimage b 0 0 (floor n x) (floor n y))))
@@ -51,7 +51,7 @@
 (defn insert! [^BufferedImage a
 	       ^BufferedImage b
 	       dx dy]
-  "Insert image a into image b at coordinates dx,dy."
+  "Insert image a into image b at coordinates dx dy."
   (let [da (.getRaster a)
 	db (.getRaster b)]
     (reduce = nil
