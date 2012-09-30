@@ -54,10 +54,10 @@
   "Insert image a into image b at coordinates dx dy."
   (let [da (.getRaster a)
 	db (.getRaster b)]
-    (reduce = nil
-	      (for [x (range 0 (.getWidth da))
-		    y (range 0 (.getHeight da))
-		    z (range 0 (.getNumBands da))]
-		(.setSample db (+ dx x) (+ dy y) z
-			    (.getSample da x y z))))))
+    (dorun
+     (for [x (range 0 (.getWidth da))
+	   y (range 0 (.getHeight da))
+	   z (range 0 (.getNumBands da))]
+       (.setSample db (+ dx x) (+ dy y) z
+		   (.getSample da x y z))))))
 
