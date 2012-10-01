@@ -2,18 +2,17 @@
 
 ## Overview
 
-A photo mosaic is an image composed of many small images (see http://en.wikipedia.org/wiki/Photo_mosaic).  This project generates a photo mosaic from a collection of tiles.  Tiles are formed from a set of input images by breaking them into squares of the same size.
+A photo mosaic is an image composed of many small images (see http://en.wikipedia.org/wiki/Photo_mosaic).  This project generates a photo mosaic of a target image from a collection of tiles, which are the source images broken into squares of equal size.
 
 ## Usage
 
+   lend run <target_image> <source_images>...
+
    lein run target.jpg tiles/*.jpg
    
-   lein run \
-   --tile-size 100 \
-   --tile-step 20 \
-   --samples 3 \
-   --output "example-output.txt" \
-   --width 50
+   lein run --tile-size 100 --tile-step 20 --samples 3 --output "example-output.txt" --width 50 target.jpg tiles/*.jpg
+
+   lein run --help
 
 ## License
 
