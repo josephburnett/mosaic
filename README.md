@@ -6,7 +6,7 @@ A photo mosaic is an image composed of many small images (see http://en.wikipedi
 
 ## Usage
 
-   lend run <target_image> <source_images>...
+   lein run [target image] [source images]...
 
    lein run target.jpg tiles/*.jpg
    
