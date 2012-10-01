@@ -2,7 +2,7 @@
 
 ## Overview
 
-A photo mosaic is an image composed of many small images (see http://en.wikipedia.org/wiki/Photo_mosaic).  This project generates tiles from a set of input images by breaking them into squares of the same size.
+A photo mosaic is an image composed of many small images (see http://en.wikipedia.org/wiki/Photo_mosaic).  This project generates a photo mosaic from a collection of tiles.  Tiles are formed from a set of input images by breaking them into squares of the same size.
 
 ## Usage
 
