@@ -16,10 +16,11 @@
 
 (defn- gen-tiles 
   "Generate tiles of size n from image b.
-   Returns a list of BufferedImages."
+   Returns a list of coordinate, image pairs
+   rather than subimages for space efficiency."
   ([n ^BufferedImage b] (gen-tiles n b n))
   ([n ^BufferedImage b s]
-     (map img/sub-image
+     (map #(hash-map :coord %1 :image %2)
 	  (grid n (.getWidth b) (.getHeight b) s)
 	  (repeat b))))
 
@@ -36,18 +37,24 @@
 
 (defn- sample-tiles [n tiles]
   "Get average RGB in regions n-by-n for tiles.
-   Output format: {:tile :sample}"
-  (for [t tiles] {:tile t
-		  :samples (img/get-samples (img/rescale n n t))}))
+   Output format: {:tile :samples}"
+  (for [t tiles]
+    (let [i (img/sub-image (:coord t) (:image t))
+	  s (img/get-samples (img/rescale n n i))]
+      {:tile t :samples s} )))
 
 (defn- best-match [n samples ^BufferedImage b]
-  "Find the best matching tile to image b."
-  (let [s (img/get-samples (img/rescale n n b))]
-    (reduce #(if (< (delta s (:samples %1))
-		    (delta s (:samples %2)))
-	       %1 %2)
-	    (first samples)
-	    (rest samples))))
+  "Find the best matching tile to image b.
+   Applies sub-image to the resulting tile
+   to return a BufferedImage."
+  (let [s (img/get-samples (img/rescale n n b))
+	t (reduce #(if (< (delta s (:samples %1))
+			  (delta s (:samples %2)))
+		     %1 %2)
+		  (first samples)
+		  (rest samples))
+	i (:tile t)]
+    (img/sub-image (:coord i) (:image i))))
     
 (defn- gen-canvas [n w ^BufferedImage b]
   "Rescale and crop image b to evenly fit tiles of
@@ -65,7 +72,7 @@
 	tiles (sample-tiles s (gen-tiles-coll n tiles ns))]
     ; Replace each tile in canvas with the best match from tiles coll.
     (dorun (map #(img/insert!
-		  (:tile (best-match n tiles (img/sub-image % canvas)))
+		  (best-match n tiles (img/sub-image % canvas))
 		  canvas (first %) (second %))
 		(grid n (.getWidth canvas) (.getHeight canvas))))
     canvas))
