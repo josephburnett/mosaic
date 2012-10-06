@@ -3,7 +3,10 @@
   (import java.lang.Math)
   (import javax.imageio.ImageIO)
   (import java.awt.image.BufferedImage)
+  (import java.awt.image.WritableRaster)
   (import com.mortennobel.imagescaling.ResampleOp))
+
+(set! *warn-on-reflection* true)
 
 (defn load-image [^String f]
   "Load filename f into a BufferedImage"
@@ -52,12 +55,12 @@
 	       ^BufferedImage b
 	       dx dy]
   "Insert image a into image b at coordinates dx dy."
-  (let [da (.getRaster a)
-	db (.getRaster b)]
+  (let [^WritableRaster da (.getRaster a)
+	^WritableRaster db (.getRaster b)]
     (dorun
      (for [x (range 0 (.getWidth da))
 	   y (range 0 (.getHeight da))
 	   z (range 0 (.getNumBands da))]
-       (.setSample db (+ dx x) (+ dy y) z
+       (.setSample db (int (+ dx x)) (int (+ dy y)) (int z)
 		   (.getSample da x y z))))))
 

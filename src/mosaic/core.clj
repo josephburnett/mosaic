@@ -3,6 +3,8 @@
   (import java.lang.Math)
   (import java.awt.image.BufferedImage))
 
+(set! *warn-on-reflection* true)
+
 (defn- grid
   "Divide region 0,0,x,y into grid squares of size n.
    Partial grids squares are omitted. Optional parameter
@@ -33,7 +35,7 @@
 (defn- delta [seq-a seq-b]
   "Calculate the difference between sequences a and b.
    This is like a k-d manhattan distance."
-  (reduce + (map #(Math/abs %) (map - seq-a seq-b))))
+  (reduce + (map #(Math/abs (int %)) (map - seq-a seq-b))))
 
 (defn- sample-tiles [n tiles]
   "Get average RGB in regions n-by-n for tiles.
@@ -68,7 +70,7 @@
 	      ns ; tile step size
 	      w  ; width in tiles
 	      s] ; sample size (actual sample regions are s^2)
-  (let [canvas (gen-canvas n w target)
+  (let [^BufferedImage canvas (gen-canvas n w target)
 	tiles (sample-tiles s (gen-tiles-coll n tiles ns))]
     ; Replace each tile in canvas with the best match from tiles coll.
     (dorun (map #(img/insert!
