@@ -29,10 +29,10 @@
       (let [target (load-image (first files))
 	    tiles (map load-image (rest files))]
 	(save-image
-	 (mosaic tiles
-		      target
-		      (:tile-size options)
-		      (:step-size options)
-		      (:width options)
-		      (:samples options))
+	 (time (mosaic tiles
+		       target
+		       (:tile-size options)
+		       (:step-size options)
+		       (:width options)
+		       (:samples options)))
 	 (:output options))))))
