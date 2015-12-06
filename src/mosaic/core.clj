@@ -1,5 +1,6 @@
 (ns mosaic.core
   (require [mosaic.image :as img])
+  (require kdtree)
   (import java.lang.Math)
   (import java.awt.image.BufferedImage))
 
@@ -16,7 +17,7 @@
 	  b (range 0 (- y n -1) s)]
        [a,b,n,n])))
 
-(defn- gen-tiles 
+(defn- gen-tiles
   "Generate tiles of size n from image b.
    Returns a list of coordinate, image pairs
    rather than subimages for space efficiency."
@@ -45,6 +46,11 @@
 	  s (img/get-samples (img/rescale n n i))]
       {:tile t :samples s} )))
 
+(defn- index-tiles [tiles]
+  "Build a Kd-tree of tile samples."
+  (kdtree/build-tree
+    (map #(with-meta (:samples %) %) tiles)))
+
 (defn- best-match [n samples ^BufferedImage b]
   "Find the best matching tile to image b.
    Applies sub-image to the resulting tile
@@ -57,7 +63,7 @@
 		  (rest samples))
 	i (:tile t)]
     (img/sub-image (:coord i) (:image i))))
-    
+
 (defn- gen-canvas [n w ^BufferedImage b]
   "Rescale and crop image b to evenly fit tiles of
    size n, with w tiles across."
