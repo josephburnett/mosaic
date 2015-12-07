@@ -31,7 +31,7 @@
   "Generate tiles of size n from images coll."
   ([n coll] (gen-tiles-coll n coll n))
   ([n coll s]
-     (flatten (map gen-tiles (repeat n) coll))))
+     (flatten (map gen-tiles (repeat n) coll (repeat s)))))
 
 (defn- delta [seq-a seq-b]
   "Calculate the difference between sequences a and b.
@@ -85,9 +85,13 @@
 	      ns ; tile step size
 	      w  ; width in tiles
 	      s] ; sample size (actual sample regions are s^2)
-  (let [^BufferedImage canvas (gen-canvas n w target)
+  (let [_ (println "Generating canvas.")
+        ^BufferedImage canvas (gen-canvas n w target)
+        _ (println "Sampling tiles.")
 	tiles (sample-tiles s (gen-tiles-coll n tiles ns))
+        _ (println "Indexing tiles.")
         tree (index-tiles tiles)]
+    (println "Matching tiles.")
     ; Replace each tile in canvas with the best match from tiles coll.
     (dorun (map #(img/insert!
 		  (best-match-2 n tree (img/sub-image % canvas))
