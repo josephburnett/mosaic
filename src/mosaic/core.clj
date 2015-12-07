@@ -64,6 +64,15 @@
 	i (:tile t)]
     (img/sub-image (:coord i) (:image i))))
 
+(defn- best-match-2 [n tree ^BufferedImage b]
+  "Find the best matching tile to image b.
+  Applies sub-image to the resulting tile
+  to return a BufferedImage."
+  (let [s (img/get-samples (img/rescale n n b))
+	t (meta (kdtree/nearest-neighbor tree s))
+	i (:tile t)]
+    (img/sub-image (:coord i) (:image i))))
+
 (defn- gen-canvas [n w ^BufferedImage b]
   "Rescale and crop image b to evenly fit tiles of
    size n, with w tiles across."
@@ -77,10 +86,11 @@
 	      w  ; width in tiles
 	      s] ; sample size (actual sample regions are s^2)
   (let [^BufferedImage canvas (gen-canvas n w target)
-	tiles (sample-tiles s (gen-tiles-coll n tiles ns))]
+	tiles (sample-tiles s (gen-tiles-coll n tiles ns))
+        tree (index-tiles tiles)]
     ; Replace each tile in canvas with the best match from tiles coll.
     (dorun (map #(img/insert!
-		  (best-match n tiles (img/sub-image % canvas))
+		  (best-match-2 n tree (img/sub-image % canvas))
 		  canvas (first %) (second %))
 		(grid n (.getWidth canvas) (.getHeight canvas))))
     canvas))
