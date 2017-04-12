@@ -15,7 +15,6 @@ A photo mosaic is an image composed of many smaller images (see the [Wikipedia a
 
 ## Known Issues
 
-* The implementation of best-match is ridiculously inefficient (a full scan of the tile collection).  The sample coordinates should be stored in a k-d tree, like this one: [clj-kdtree](https://github.com/abscondment/clj-kdtree)
 * The heavy weigh operations like tile generation and tile matching could make use of multiple cores by using pmap instead of map.
 
 ## License
